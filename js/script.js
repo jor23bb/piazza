@@ -14,8 +14,6 @@
     var expandedQuestionTemplate = document.getElementById('expanded-question-template');
     // TODO: add other script elements corresponding to templates here
 
-// localStorage.clear();
-
     // compiled Handlebars templates
     var templates = {
         renderQuestionForm: Handlebars.compile(questionFormTemplate.innerHTML),
@@ -24,51 +22,48 @@
         // TODO: add other Handlebars render functions here
     };
 
-function addQuestionListeners(){
 
-        var questionButtons = document.querySelectorAll(".question-info");
-        for(var i = 0; i < questionButtons.length; i++){
-            questionButtons[i].addEventListener('click', function(){
-                
-                var selectedQuestion = getStoredQuestionByID(this.id);
-                rightPane.innerHTML = templates.renderExpandedQuestion({
-                    subject: selectedQuestion.subject,
-                    question: selectedQuestion.question,
-                    responses: selectedQuestion.responses
-                });
+    leftPane.addEventListener("click", function(event){
+        var id;
+        if(event.target.nodeName == "DIV")
+            id = event.target.id;
+        else if (event.target.nodeName == "P" || event.target.nodeName == "H3")
+            id = event.target.parentNode.id;
+            
+        var selectedQuestion = getStoredQuestionByID(id);
+        rightPane.innerHTML = templates.renderExpandedQuestion({
+            subject: selectedQuestion.subject,
+            question: selectedQuestion.question,
+            responses: selectedQuestion.responses
+        });
 
-                var responseForm = document.getElementById("response-form");
-                responseForm.addEventListener("submit", function(e){
-                    e.preventDefault();
-                    var response = {
-                        name: document.getElementById('name').value,
-                        response: document.getElementById('response').value
-                    }
-                    selectedQuestion.responses.push(response);
-                    modifyQuestion(selectedQuestion);
-                    rightPane.innerHTML = templates.renderExpandedQuestion({
-                        subject: selectedQuestion.subject,
-                        question: selectedQuestion.question,
-                        responses: selectedQuestion.responses
-                    });
-                    responseForm.reset();
-                });
+        var responseForm = document.getElementById("response-form");
+        responseForm.addEventListener("submit", function(e){
+            e.preventDefault();
+            var response = {
+                name: document.getElementById('name').value,
+                response: document.getElementById('response').value
+            }
 
-                var resolveButton = document.querySelector(".resolve");
-                resolveButton.addEventListener('click', function(){
-                    removeQuestion(selectedQuestion);
-                    rightPane.innerHTML = templates.renderQuestionForm();
-                    leftPane.innerHTML = templates.renderQuestions({questions: getStoredQuestions()});
-                    //after hitting resolve dont have listeners on left side
-                });
+            selectedQuestion.responses.push(response);
+            modifyQuestion(selectedQuestion);
+            rightPane.innerHTML = templates.renderExpandedQuestion({
+                subject: selectedQuestion.subject,
+                question: selectedQuestion.question,
+                responses: selectedQuestion.responses
+            });
+            responseForm.reset();
+        });
 
-            });   
-        }
-}
+        var resolveButton = document.querySelector(".resolve");
+        resolveButton.addEventListener('click', function(){
+            removeQuestion(selectedQuestion);
+            rightPane.innerHTML = templates.renderQuestionForm();
+            leftPane.innerHTML = templates.renderQuestions({questions: getStoredQuestions()});
+        });
+    });
 
     window.addEventListener('DOMContentLoaded', function(){
-        addQuestionListeners();
-
         var questionForm = document.getElementById('question-form');
         questionForm.addEventListener("submit", function(e){
             e.preventDefault();
@@ -91,50 +86,7 @@ function addQuestionListeners(){
             leftPane.innerHTML = allQuestions;
             storeQuestions(storedQuestions);
             questionForm.reset();
-            addQuestionListeners();
         });
-
-
-
-
-        // var questionButtons = document.querySelectorAll(".question-info");
-        // for(var i = 0; i < questionButtons.length; i++){
-        //     questionButtons[i].addEventListener('click', function(){
-                
-        //         var selectedQuestion = getStoredQuestionByID(this.id);
-        //         rightPane.innerHTML = templates.renderExpandedQuestion({
-        //             subject: selectedQuestion.subject,
-        //             question: selectedQuestion.question,
-        //             responses: selectedQuestion.responses
-        //         });
-
-        //         var responseForm = document.getElementById("response-form");
-        //         responseForm.addEventListener("submit", function(e){
-        //             e.preventDefault();
-        //             var response = {
-        //                 name: document.getElementById('name').value,
-        //                 response: document.getElementById('response').value
-        //             }
-        //             selectedQuestion.responses.push(response);
-        //             modifyQuestion(selectedQuestion);
-        //             rightPane.innerHTML = templates.renderExpandedQuestion({
-        //                 subject: selectedQuestion.subject,
-        //                 question: selectedQuestion.question,
-        //                 responses: selectedQuestion.responses
-        //             });
-        //             responseForm.reset();
-        //         });
-
-        //         var resolveButton = document.querySelector(".resolve");
-        //         resolveButton.addEventListener('click', function(){
-        //             removeQuestion(selectedQuestion);
-        //             rightPane.innerHTML = templates.renderQuestionForm();
-        //             leftPane.innerHTML = templates.renderQuestions({questions: getStoredQuestions()});
-        //         });
-
-        //     });   
-        // }
-
 
         var newQuestionButton = document.querySelector("#interactors .btn");
         newQuestionButton.addEventListener('click', function(){
